@@ -16,26 +16,28 @@ class SchedulesController extends Controller
     public function index(Request $request)
     {
         $schedules = DB::select('SELECT
-            schedules.id,
+            schedules.id AS schedule_id,
             schedules.`day`,
-            TIME_FORMAT(schedules.time, "%H:%i") as time,
+            TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
+            TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
+            students.id AS student_id,
             students.first_name,
             students.middle_name,
             students.last_name,
-            teachers.`name` as teacher,
-            classes.`name` as class,
-            rooms.id as room_id,
+            teachers.id AS teacher_id,
+            classes.id AS class_id,
+            rooms.id AS room_id,
             rooms.name AS room_name
             FROM
             schedules
-            INNER JOIN rooms ON schedules.room_id = rooms.id
-            INNER JOIN students ON schedules.student_id = students.id
-            INNER JOIN teachers ON schedules.teacher_id = teachers.id
-            INNER JOIN classes ON schedules.class_id = classes.id
+            LEFT JOIN rooms ON schedules.room_id = rooms.id
+            LEFT JOIN students ON schedules.student_id = students.id
+            LEFT JOIN teachers ON schedules.teacher_id = teachers.id
+            LEFT JOIN classes ON schedules.class_id = classes.id
             WHERE
             schedules.branch_id = "'.$request->get('branch').'"
-            ORDER BY
-            schedules.id desc');
+            AND
+            schedules.date = CURRENT_DATE');
 
         return response()->json($schedules);
     }
@@ -58,33 +60,67 @@ class SchedulesController extends Controller
      */
     public function store(Request $request)
     {
+        $schedule = new Schedules;
+        $schedule->branch_id = $request->get('branch');
+        $schedule->date = date("Y-m-d H:i:s");
+        $schedule->save();
+
+        return "Data berhasil masuk";
+    }
+
+    public function copy(Request $request)
+    {
+        error_log(1);
+        $schedules = DB::select('SELECT
+            schedules.id AS schedule_id,
+            schedules.`day`,
+            schedules.branch_id,
+            TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
+            TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
+            students.id AS student_id,
+            students.first_name,
+            students.middle_name,
+            students.last_name,
+            teachers.id AS teacher_id,
+            classes.id AS class_id,
+            rooms.id AS room_id,
+            rooms.name AS room_name
+            FROM
+            schedules
+            LEFT JOIN rooms ON schedules.room_id = rooms.id
+            LEFT JOIN students ON schedules.student_id = students.id
+            LEFT JOIN teachers ON schedules.teacher_id = teachers.id
+            LEFT JOIN classes ON schedules.class_id = classes.id
+            WHERE
+            schedules.branch_id = "' . $request->get('branch') . '"
+			AND
+            schedules.date = "' . $request->get('dateFrom') . '"');
+
         $checkSchedule = DB::select('SELECT
             schedules.id
             FROM
             schedules
             WHERE
-            schedules.`day` = "'.$request->get('day').'" AND
-            schedules.student_id = "'.$request->get('student').'"
-            ');
-
-        if(empty($checkSchedule))
-        {
-            $schedule = new Schedules;
-            $schedule->day = $request->get('day');
-            $schedule->time = $request->get('time');
-            $schedule->student_id = $request->get('student');
-            $schedule->teacher_id = $request->get('teacher');
-            $schedule->room_id = $request->get('room');
-            $schedule->class_id = $request->get('class');
-            $schedule->branch_id = $request->get('branch');
-            $schedule->save();
-
-            return "Data berhasil masuk";
+            schedules.date = "' . $request->get('dateTo') . '"');
+            
+        if (empty($checkSchedule)) {
+            error_log(3);
+            foreach ($schedules as $schedule) {
+                $copySchedules = new Schedules();
+                $copySchedules->day = $schedule->day;
+                $copySchedules->start_at = $schedule->start_at;
+                $copySchedules->end_at = $schedule->end_at;
+                $copySchedules->student_id = $schedule->student_id;
+                $copySchedules->teacher_id = $schedule->teacher_id;
+                $copySchedules->class_id = $schedule->class_id;
+                $copySchedules->room_id = $schedule->room_id;
+                $copySchedules->branch_id = $schedule->branch_id;
+                $copySchedules->date = $request->get('dateTo');
+                $copySchedules->save();
+            }
         }
-        
-        return response()->json([
-            'message' => 'Duplicate'
-        ], 404);
+
+        return 'Data Berhasil Masuk';
     }
 
     /**
@@ -170,30 +206,33 @@ class SchedulesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // $checkSchedule = DB::select('SELECT
-        //     schedules.id
-        //     FROM
-        //     schedules
-        //     WHERE
-        //     schedules.`day` = "'.$request->get('day').'" AND
-        //     schedules.student_id = "'.$request->get('student').'"
-        //     ');
+        $checkSchedule = DB::select('SELECT
+            schedules.id
+            FROM
+            schedules
+            WHERE
+            schedules.`day` = "'.$request->get('day').'" AND
+            schedules.student_id = "'.$request->get('student').'"
+            ');
 
-          $schedule = Schedules::find($id);
-          $schedule->day = $request->get('day');
-          $schedule->time = $request->get('time');
-          $schedule->student_id = $request->get('student');
-          $schedule->teacher_id = $request->get('teacher');
-          $schedule->class_id = $request->get('class');
-          $schedule->room_id = $request->get('room');
-        // $schedule->branch_id = $request->get('branch');
-          $schedule->save();  
+        if (empty($checkSchedule)) {
+            $schedule = Schedules::find($id);
+            $schedule->day = $request->get('day') ? $request->get('day') : $schedule->day;
+            $schedule->start_at = $request->get('start_at') ? $request->get('start_at') : $schedule->start_at;
+            $schedule->end_at = $request->get('end_at') ? $request->get('end_at') : $schedule->end_at;
+            $schedule->student_id = $request->get('student_id') ? $request->get('student_id') : $schedule->student_id;
+            $schedule->teacher_id = $request->get('teacher_id') ? $request->get('teacher_id') : $schedule->teacher_id;
+            $schedule->class_id = $request->get('class_id') ? $request->get('class_id') : $schedule->class_id;
+            $schedule->room_id = $request->get('room_id') ? $request->get('room_id') : $schedule->room_id;
+            // $schedule->branch_id = $request->get('branch');
+            $schedule->save();  
 
-          return "Data berhasil di update";
+            return "Data berhasil masuk";
+        }
 
-        // return response()->json([
-        //     'message' => 'Duplicate'
-        // ], 404);
+        return response()->json([
+            'message' => 'Duplicate'
+        ], 404);
     }
 
     /**

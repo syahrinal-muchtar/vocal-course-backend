@@ -69,6 +69,7 @@ $router->get('schedules', 'SchedulesController@index');
 $router->get('schedules/filterDay', 'SchedulesController@filterDay');
 $router->get('schedule/{id}', 'SchedulesController@show');
 $router->post('schedule', 'SchedulesController@store');
+$router->post('schedules/copy', 'SchedulesController@copy');
 $router->patch('schedule/{id}', 'SchedulesController@update');
 $router->delete('schedule/{id}', 'SchedulesController@destroy');
 
