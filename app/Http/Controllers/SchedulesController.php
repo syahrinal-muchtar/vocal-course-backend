@@ -62,7 +62,7 @@ class SchedulesController extends Controller
     {
         $schedule = new Schedules;
         $schedule->branch_id = $request->get('branch');
-        $schedule->date = date("Y-m-d H:i:s");
+        $schedule->date = $request->get('date');
         $schedule->save();
 
         return "Data berhasil masuk";
@@ -70,7 +70,6 @@ class SchedulesController extends Controller
 
     public function copy(Request $request)
     {
-        error_log(1);
         $schedules = DB::select('SELECT
             schedules.id AS schedule_id,
             schedules.`day`,
@@ -102,9 +101,8 @@ class SchedulesController extends Controller
             schedules
             WHERE
             schedules.date = "' . $request->get('dateTo') . '"');
-            
+
         if (empty($checkSchedule)) {
-            error_log(3);
             foreach ($schedules as $schedule) {
                 $copySchedules = new Schedules();
                 $copySchedules->day = $schedule->day;
@@ -157,31 +155,31 @@ class SchedulesController extends Controller
         return response()->json($schedule);
     }
 
-    public function filterDay(Request $request)
+    public function filter(Request $request)
     {
         $schedules = DB::select('SELECT
-            schedules.id,
-            schedules.`day`,
-            TIME_FORMAT(schedules.time, "%H:%i") as time,
-            students.first_name,
-            students.middle_name,
-            students.last_name,
-            teachers.`name` as teacher,
-            classes.`name` as class,
-            rooms.id as room_id,
-            rooms.name AS room_name
-            FROM
-            schedules
-            INNER JOIN rooms ON schedules.room_id = rooms.id
-            INNER JOIN students ON schedules.student_id = students.id
-            INNER JOIN teachers ON schedules.teacher_id = teachers.id
-            INNER JOIN classes ON schedules.class_id = classes.id
-            WHERE
-            schedules.branch_id = "'.$request->get('branch').'"
-            AND
-            schedules.`day` = "'.$request->get('day').'"
-            ORDER BY
-            schedules.id desc');
+        schedules.id AS schedule_id,
+        schedules.`day`,
+        TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
+        TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
+        students.id AS student_id,
+        students.first_name,
+        students.middle_name,
+        students.last_name,
+        teachers.id AS teacher_id,
+        classes.id AS class_id,
+        rooms.id AS room_id,
+        rooms.name AS room_name
+        FROM
+        schedules
+        LEFT JOIN rooms ON schedules.room_id = rooms.id
+        LEFT JOIN students ON schedules.student_id = students.id
+        LEFT JOIN teachers ON schedules.teacher_id = teachers.id
+        LEFT JOIN classes ON schedules.class_id = classes.id
+        WHERE
+        schedules.branch_id = "'.$request->get('branch').'"
+        AND
+        schedules.date = "'.$request->get('date').'"');
 
         return response()->json($schedules);
     }

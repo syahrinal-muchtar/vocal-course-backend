@@ -66,7 +66,7 @@ $router->delete('student/{id}', 'StudentsController@destroy');
 
 // Schedule Route
 $router->get('schedules', 'SchedulesController@index');
-$router->get('schedules/filterDay', 'SchedulesController@filterDay');
+$router->get('schedules/filter', 'SchedulesController@filter');
 $router->get('schedule/{id}', 'SchedulesController@show');
 $router->post('schedule', 'SchedulesController@store');
 $router->post('schedules/copy', 'SchedulesController@copy');
