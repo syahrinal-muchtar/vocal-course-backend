@@ -173,9 +173,8 @@ class AttendancesController extends Controller
                 attendances.student_id,
                 attendances.student_status,
                 attendances.class_id,
-                schedules.start_at,
-                schedules.end_at,
-                schedules.`day`,
+                TIME_FORMAT(schedules.start_at, "%h:%i") start_at,
+                TIME_FORMAT(schedules.end_at, "%h:%i") end_at,
                 students.id AS student_id,
                 students.first_name,
                 students.middle_name,
@@ -183,6 +182,7 @@ class AttendancesController extends Controller
                 teachers.id AS teacher_id,
                 teachers.`name` as teacher_name,
                 classes.`name`AS class_name,
+                rooms.id AS room_id,
                 rooms.name AS room_name
                 FROM
                 attendances
@@ -206,9 +206,8 @@ class AttendancesController extends Controller
             attendances.student_id,
             attendances.student_status,
             attendances.class_id,
-            schedules.start_at,
-            schedules.end_at,
-            schedules.`day`,
+            TIME_FORMAT(schedules.start_at, "%h:%i") start_at,
+            TIME_FORMAT(schedules.end_at, "%h:%i") end_at,
             students.id AS student_id,
             students.first_name,
             students.middle_name,
@@ -216,6 +215,7 @@ class AttendancesController extends Controller
             teachers.id AS teacher_id,
             teachers.`name` as teacher_name,
             classes.`name`AS class_name,
+            rooms.id AS room_id,
             rooms.name AS room_name
             FROM
             attendances
@@ -272,9 +272,8 @@ class AttendancesController extends Controller
                     attendances.student_id,
                     attendances.student_status,
                     attendances.class_id,
-                    schedules.start_at,
-                    schedules.end_at,
-                    schedules.`day`,
+                    TIME_FORMAT(schedules.start_at, "%h:%i") start_at,
+                    TIME_FORMAT(schedules.end_at, "%h:%i") end_at,
                     students.id AS student_id,
                     students.first_name,
                     students.middle_name,
@@ -282,6 +281,7 @@ class AttendancesController extends Controller
                     teachers.id AS teacher_id,
                     teachers.`name` as teacher_name,
                     classes.`name`AS class_name,
+                    rooms.id AS room_id,
                     rooms.name AS room_name
                     FROM
                     attendances
@@ -307,9 +307,8 @@ class AttendancesController extends Controller
                 attendances.student_id,
                 attendances.student_status,
                 attendances.class_id,
-                schedules.start_at,
-                schedules.end_at,
-                schedules.`day`,
+                TIME_FORMAT(schedules.start_at, "%h:%i") start_at,
+                TIME_FORMAT(schedules.end_at, "%h:%i") end_at,
                 students.id AS student_id,
                 students.first_name,
                 students.middle_name,
@@ -317,6 +316,7 @@ class AttendancesController extends Controller
                 teachers.id AS teacher_id,
                 teachers.`name` as teacher_name,
                 classes.`name`AS class_name,
+                rooms.id AS room_id,
                 rooms.name AS room_name
                 FROM
                 attendances
@@ -341,9 +341,8 @@ class AttendancesController extends Controller
                 attendances.student_id,
                 attendances.student_status,
                 attendances.class_id,
-                schedules.start_at,
-                schedules.end_at,
-                schedules.`day`,
+                TIME_FORMAT(schedules.start_at, "%h:%i") start_at,
+                TIME_FORMAT(schedules.end_at, "%h:%i") end_at,
                 students.id AS student_id,
                 students.first_name,
                 students.middle_name,
@@ -351,6 +350,7 @@ class AttendancesController extends Controller
                 teachers.id AS teacher_id,
                 teachers.`name` as teacher_name,
                 classes.`name`AS class_name,
+                rooms.id AS room_id,
                 rooms.name AS room_name
                 FROM
                 attendances
