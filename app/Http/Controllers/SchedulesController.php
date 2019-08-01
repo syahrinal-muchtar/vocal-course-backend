@@ -17,7 +17,6 @@ class SchedulesController extends Controller
     {
         $schedules = DB::select('SELECT
             schedules.id AS schedule_id,
-            schedules.`day`,
             TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
             TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
             students.id AS student_id,
@@ -72,7 +71,6 @@ class SchedulesController extends Controller
     {
         $schedules = DB::select('SELECT
             schedules.id AS schedule_id,
-            schedules.`day`,
             schedules.branch_id,
             TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
             TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
@@ -131,7 +129,6 @@ class SchedulesController extends Controller
     {
             $schedule = DB::select('SELECT
                 schedules.id,
-                schedules.`day`,
                 TIME_FORMAT(schedules.time, "%H:%i") as time,
                 students.id as student_id,
                 students.first_name,
@@ -157,29 +154,58 @@ class SchedulesController extends Controller
 
     public function filter(Request $request)
     {
-        $schedules = DB::select('SELECT
-        schedules.id AS schedule_id,
-        schedules.`day`,
-        TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
-        TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
-        students.id AS student_id,
-        students.first_name,
-        students.middle_name,
-        students.last_name,
-        teachers.id AS teacher_id,
-        classes.id AS class_id,
-        rooms.id AS room_id,
-        rooms.name AS room_name
-        FROM
-        schedules
-        LEFT JOIN rooms ON schedules.room_id = rooms.id
-        LEFT JOIN students ON schedules.student_id = students.id
-        LEFT JOIN teachers ON schedules.teacher_id = teachers.id
-        LEFT JOIN classes ON schedules.class_id = classes.id
-        WHERE
-        schedules.branch_id = "'.$request->get('branch').'"
-        AND
-        schedules.date = "'.$request->get('date').'"');
+        if($request->get('classId') > 0)
+        {
+            $schedules = DB::select('SELECT
+            schedules.id AS schedule_id,
+            TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
+            TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
+            students.id AS student_id,
+            students.first_name,
+            students.middle_name,
+            students.last_name,
+            teachers.id AS teacher_id,
+            classes.id AS class_id,
+            rooms.id AS room_id,
+            rooms.name AS room_name
+            FROM
+            schedules
+            LEFT JOIN rooms ON schedules.room_id = rooms.id
+            LEFT JOIN students ON schedules.student_id = students.id
+            LEFT JOIN teachers ON schedules.teacher_id = teachers.id
+            LEFT JOIN classes ON schedules.class_id = classes.id
+            WHERE
+            schedules.branch_id = "'.$request->get('branch').'"
+            AND
+            schedules.date = "'.$request->get('date').'"
+            AND
+            schedules.class_id = "'.$request->get('classId').'"');
+        }
+        else
+        {
+            $schedules = DB::select('SELECT
+            schedules.id AS schedule_id,
+            TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
+            TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
+            students.id AS student_id,
+            students.first_name,
+            students.middle_name,
+            students.last_name,
+            teachers.id AS teacher_id,
+            classes.id AS class_id,
+            rooms.id AS room_id,
+            rooms.name AS room_name
+            FROM
+            schedules
+            LEFT JOIN rooms ON schedules.room_id = rooms.id
+            LEFT JOIN students ON schedules.student_id = students.id
+            LEFT JOIN teachers ON schedules.teacher_id = teachers.id
+            LEFT JOIN classes ON schedules.class_id = classes.id
+            WHERE
+            schedules.branch_id = "' . $request->get('branch') . '"
+            AND
+            schedules.date = "' . $request->get('date') . '"');
+        }
 
         return response()->json($schedules);
     }
@@ -209,7 +235,7 @@ class SchedulesController extends Controller
             FROM
             schedules
             WHERE
-            schedules.`day` = "'.$request->get('day').'" AND
+            schedules.date = "'.$request->get('date').'" AND
             schedules.student_id = "'.$request->get('student').'"
             ');
 
