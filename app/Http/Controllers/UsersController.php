@@ -54,6 +54,7 @@ class UsersController extends Controller
         $user->username = $request->get('username');
         $user->password = Hash::make($request->get('password'));
         $user->note = $request->get('note');
+        $user->joined_at = date("Y-m-d");
         $user->save();
 
         $userGroup = new UsersGroups;
