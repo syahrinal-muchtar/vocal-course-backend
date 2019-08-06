@@ -133,6 +133,16 @@ class UsersController extends Controller
         return "Data berhasil di Update";
     }
 
+    public function resign($id)
+    {
+        $user = Users::find($id);
+        $user->resigned_at = $user->status == 3 ? $user->resigned_at : date("Y-m-d");
+        $user->status = $user->status == 3 ? 1 : 3; // 1 = Active 3 = Resign
+        $user->save();
+
+        return "Status karyawan berhasil di update";
+    }
+
     /**
      * Remove the specified resource from storage.
      *
