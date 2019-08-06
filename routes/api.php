@@ -31,6 +31,7 @@ $router->get('branches', 'BranchesController@index');
 $router->get('user/{id}', 'UsersController@show');
 $router->post('user', 'UsersController@store');
 $router->patch('user/{id}', 'UsersController@update');
+$router->patch('user_resign/{id}', 'UsersController@resign');
 $router->delete('user/{id}', 'UsersController@destroy');
 $router->post('user/login', 'UsersController@login');
 $router->post('user/logout', 'UsersController@logout');
