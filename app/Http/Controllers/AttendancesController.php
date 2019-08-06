@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\StudentAttendances;
+use App\Schedules;
 use App\Attendances;
 use App\Classes;
 use Illuminate\Support\Facades\DB;
@@ -144,15 +144,22 @@ class AttendancesController extends Controller
                 id,
                 student_id,
                 teacher_id,
-                class_id
+                class_id,
+                start_at,
+                end_at,
+                branch_id,
+                room_id
                 FROM
                 schedules
                 WHERE
-                schedules.`day` = DAYNAME(CURRENT_DATE)');
+                schedules.date = CURRENT_DATE()');
 
             foreach ($schedules as $schedule) {
                 $attendances = new Attendances;
                 $attendances->date = date("Y-m-d");
+                $attendances->start_at = $schedule->start_at;
+                $attendances->end_at = $schedule->end_at;
+                $attendances->room_id = $schedule->room_id;
                 $attendances->teacher_id = $schedule->teacher_id;
                 $attendances->teacher_status = 0;
                 $attendances->student_id = $schedule->student_id;
@@ -173,8 +180,8 @@ class AttendancesController extends Controller
                 attendances.student_id,
                 attendances.student_status,
                 attendances.class_id,
-                TIME_FORMAT(schedules.start_at, "%h:%i") start_at,
-                TIME_FORMAT(schedules.end_at, "%h:%i") end_at,
+                TIME_FORMAT(attendances.start_at, "%H:%i") start_at,
+                TIME_FORMAT(attendances.end_at, "%H:%i") end_at,
                 students.id AS student_id,
                 students.first_name,
                 students.middle_name,
@@ -182,7 +189,7 @@ class AttendancesController extends Controller
                 teachers.id AS teacher_id,
                 teachers.`name` as teacher_name,
                 classes.`name`AS class_name,
-                rooms.id AS room_id,
+                attendances.room_id,
                 rooms.name AS room_name
                 FROM
                 attendances
@@ -190,7 +197,7 @@ class AttendancesController extends Controller
                 LEFT JOIN students ON attendances.student_id = students.id
                 LEFT JOIN teachers ON attendances.teacher_id = teachers.id
                 INNER JOIN classes ON attendances.class_id = classes.id
-                INNER JOIN rooms ON schedules.room_id = rooms.id
+                INNER JOIN rooms ON attendances.room_id = rooms.id
                 WHERE
                 attendances.date = CURRENT_DATE
                 ');
@@ -206,8 +213,8 @@ class AttendancesController extends Controller
             attendances.student_id,
             attendances.student_status,
             attendances.class_id,
-            TIME_FORMAT(schedules.start_at, "%h:%i") start_at,
-            TIME_FORMAT(schedules.end_at, "%h:%i") end_at,
+            TIME_FORMAT(attendances.start_at, "%H:%i") start_at,
+            TIME_FORMAT(attendances.end_at, "%H:%i") end_at,
             students.id AS student_id,
             students.first_name,
             students.middle_name,
@@ -215,7 +222,7 @@ class AttendancesController extends Controller
             teachers.id AS teacher_id,
             teachers.`name` as teacher_name,
             classes.`name`AS class_name,
-            rooms.id AS room_id,
+            attendances.room_id,
             rooms.name AS room_name
             FROM
             attendances
@@ -223,7 +230,7 @@ class AttendancesController extends Controller
             LEFT JOIN students ON attendances.student_id = students.id
             LEFT JOIN teachers ON attendances.teacher_id = teachers.id
             INNER JOIN classes ON attendances.class_id = classes.id
-            INNER JOIN rooms ON schedules.room_id = rooms.id
+            INNER JOIN rooms ON attendances.room_id = rooms.id
             WHERE
             attendances.date = CURRENT_DATE
             ');
@@ -233,71 +240,7 @@ class AttendancesController extends Controller
 
     public function filterDate(Request $request)
     {
-        $checkNow = DB::select('SELECT
-            attendances.date
-            FROM
-            attendances
-            WHERE
-            attendances.date = "'.$request->get('date').'"');
-
-        if (empty($checkNow))
-        {
-            $schedules = DB::select('SELECT
-                id,
-                student_id,
-                teacher_id,
-                class_id
-                FROM
-                schedules
-                WHERE
-                schedules.`day` = DAYNAME("'.$request->get('date').'")');
-
-            foreach ($schedules as $schedule) {
-                $attendances = new Attendances;
-                $attendances->date = $request->get('date');
-                $attendances->teacher_id = $schedule->teacher_id;
-                $attendances->teacher_status = 0;
-                $attendances->student_id = $schedule->student_id;
-                $attendances->student_status = 0;
-                $attendances->schedule_id = $schedule->id;
-                $attendances->class_id = $schedule->class_id;
-                $attendances->save();
-            }
-
-                $attendances = DB::select('SELECT
-                    attendances.id AS attendances_id,
-                    attendances.date,
-                    attendances.teacher_id,
-                    attendances.teacher_status,
-                    attendances.student_id,
-                    attendances.student_status,
-                    attendances.class_id,
-                    TIME_FORMAT(schedules.start_at, "%h:%i") start_at,
-                    TIME_FORMAT(schedules.end_at, "%h:%i") end_at,
-                    students.id AS student_id,
-                    students.first_name,
-                    students.middle_name,
-                    students.last_name,
-                    teachers.id AS teacher_id,
-                    teachers.`name` as teacher_name,
-                    classes.`name`AS class_name,
-                    rooms.id AS room_id,
-                    rooms.name AS room_name
-                    FROM
-                    attendances
-                    INNER JOIN schedules ON attendances.schedule_id = schedules.id
-                    LEFT JOIN students ON attendances.student_id = students.id
-                    LEFT JOIN teachers ON attendances.teacher_id = teachers.id
-                    INNER JOIN classes ON attendances.class_id = classes.id
-                    INNER JOIN rooms ON schedules.room_id = rooms.id
-                    WHERE
-                    attendances.date BETWEEN "'.$request->get('date').' 00:00:00" AND "'.$request->get('date').' 23:59:59"
-                    ');
-
-            return response()->json($attendances);
-        }
-
-        if($request->get('classId') > 0) //Filter By Class
+        if ($request->get('classId') > 0) //Filter By Class
         {
             $attendances = DB::select('SELECT
                 attendances.id AS attendances_id,
@@ -307,8 +250,8 @@ class AttendancesController extends Controller
                 attendances.student_id,
                 attendances.student_status,
                 attendances.class_id,
-                TIME_FORMAT(schedules.start_at, "%h:%i") start_at,
-                TIME_FORMAT(schedules.end_at, "%h:%i") end_at,
+                TIME_FORMAT(attendances.start_at, "%H:%i") start_at,
+                TIME_FORMAT(attendances.end_at, "%H:%i") end_at,
                 students.id AS student_id,
                 students.first_name,
                 students.middle_name,
@@ -316,7 +259,7 @@ class AttendancesController extends Controller
                 teachers.id AS teacher_id,
                 teachers.`name` as teacher_name,
                 classes.`name`AS class_name,
-                rooms.id AS room_id,
+                attendances.room_id,
                 rooms.name AS room_name
                 FROM
                 attendances
@@ -324,15 +267,13 @@ class AttendancesController extends Controller
                 LEFT JOIN students ON attendances.student_id = students.id
                 LEFT JOIN teachers ON attendances.teacher_id = teachers.id
                 INNER JOIN classes ON attendances.class_id = classes.id
-                INNER JOIN rooms ON schedules.room_id = rooms.id
+                INNER JOIN rooms ON attendances.room_id = rooms.id
                 WHERE
-                attendances.date BETWEEN "'.$request->get('date').' 00:00:00" AND "'.$request->get('date').' 23:59:59"
+                attendances.date BETWEEN "' . $request->get('date') . ' 00:00:00" AND "' . $request->get('date') . ' 23:59:59"
                 AND
-                attendances.class_id = "'.$request->get('classId').'"
+                attendances.class_id = "' . $request->get('classId') . '"
                 ');
-        }
-        else
-        {
+        } else {
             $attendances = DB::select('SELECT
                 attendances.id AS attendances_id,
                 attendances.date,
@@ -341,8 +282,8 @@ class AttendancesController extends Controller
                 attendances.student_id,
                 attendances.student_status,
                 attendances.class_id,
-                TIME_FORMAT(schedules.start_at, "%h:%i") start_at,
-                TIME_FORMAT(schedules.end_at, "%h:%i") end_at,
+                TIME_FORMAT(attendances.start_at, "%H:%i") start_at,
+                TIME_FORMAT(attendances.end_at, "%H:%i") end_at,
                 students.id AS student_id,
                 students.first_name,
                 students.middle_name,
@@ -350,7 +291,7 @@ class AttendancesController extends Controller
                 teachers.id AS teacher_id,
                 teachers.`name` as teacher_name,
                 classes.`name`AS class_name,
-                rooms.id AS room_id,
+                attendances.room_id,
                 rooms.name AS room_name
                 FROM
                 attendances
@@ -358,9 +299,9 @@ class AttendancesController extends Controller
                 LEFT JOIN students ON attendances.student_id = students.id
                 LEFT JOIN teachers ON attendances.teacher_id = teachers.id
                 INNER JOIN classes ON attendances.class_id = classes.id
-                INNER JOIN rooms ON schedules.room_id = rooms.id
+                INNER JOIN rooms ON attendances.room_id = rooms.id
                 WHERE
-                attendances.date BETWEEN "'.$request->get('date').' 00:00:00" AND "'.$request->get('date').' 23:59:59"
+                attendances.date BETWEEN "' . $request->get('date') . ' 00:00:00" AND "' . $request->get('date') . ' 23:59:59"
                 ');
         }
 
@@ -424,6 +365,24 @@ class AttendancesController extends Controller
         {
             $attendances = Attendances::find($id);
             $attendances->teacher_status = $request->get('teacher_status');
+            $attendances->save();
+        }
+        elseif (!empty($request->get('room_id'))) 
+        {
+            $attendances = Attendances::find($id);
+            $attendances->room_id = $request->get('room_id');
+            $attendances->save();
+        }
+        elseif (!empty($request->get('start_at'))) 
+        {
+            $attendances = Attendances::find($id);
+            $attendances->start_at = $request->get('start_at');
+            $attendances->save();
+        }
+        elseif (!empty($request->get('end_at'))) 
+        {
+            $attendances = Attendances::find($id);
+            $attendances->end_at = $request->get('end_at');
             $attendances->save();
         }
         elseif (!empty($request->get('student_status'))) 
