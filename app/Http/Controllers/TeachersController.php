@@ -19,7 +19,17 @@ class TeachersController extends Controller
      */
     public function index()
     {
-        $teachers = Teachers::orderBy('id', 'desc')->get();
+        // $teachers = Teachers::orderBy('id', 'desc')->get();
+        $teachers = DB::select('SELECT
+            teachers.id,
+            teachers.`name`,
+            teachers.students_count,
+            teachers.salary,
+            teachers.user_id,
+            users.`status`
+            FROM
+            teachers
+            INNER JOIN users ON teachers.user_id = users.id');
 
             return response()->json([
             'message' => 'success',
@@ -50,6 +60,8 @@ class TeachersController extends Controller
         $user->username = $request->get('username');
         $user->password = Hash::make($request->get('password'));
         $user->note = $request->get('note');
+        $user->joined_at = date("Y-m-d");
+        $user->status = 1; //langsung aktif
         $user->save();
 
         $userGroup = new UsersGroups;
@@ -60,6 +72,7 @@ class TeachersController extends Controller
         $teacher = new Teachers;
         $teacher->name = $request->get('name');
         $teacher->salary = $request->get('salary');
+        $teacher->user_id = $user->id;
         $teacher->save();
 
         foreach ($request->get('branch') as $branch) {
@@ -138,8 +151,10 @@ class TeachersController extends Controller
      */
     public function destroy($id)
     {
-        $teacher = Teachers::find($id);
-        $teacher->delete();
+        $user = Users::find($id);
+        $user->resigned_at = date("Y-m-d");
+
+        $user->save();
 
         return "Data berhasil dihapus";
     }
