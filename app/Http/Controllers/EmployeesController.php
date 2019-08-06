@@ -19,7 +19,20 @@ class EmployeesController extends Controller
      */
     public function index()
     {
-        $employees = Employees::orderBy('id', 'desc')->get();
+        $employees = DB::select('SELECT
+            employees.id,
+            employees.`name`,
+            employees.no_hp,
+            employees.address,
+            employees.gender,
+            employees.birthdate,
+            employees.user_id,
+            users.`status`
+            FROM
+            employees
+            INNER JOIN users ON employees.user_id = users.id
+            ORDER BY
+            employees.id DESC');
 
         return response()->json([
             'message' => 'success',
@@ -51,6 +64,7 @@ class EmployeesController extends Controller
         $user->password = Hash::make($request->get('password'));
         $user->note = $request->get('note');
         $user->joined_at = date("Y-m-d");
+        $user->status = 1; //langsung aktif
         $user->save();
 
         $userGroup = new UsersGroups;
@@ -64,6 +78,7 @@ class EmployeesController extends Controller
         $employee->address = $request->get('address');
         $employee->gender = $request->get('gender');
         $employee->birthdate = $request->get('birthdate');
+        $employee->user_id = $user->id;
         $employee->save();
 
         foreach ($request->get('branch') as $branch) {
