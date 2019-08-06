@@ -24,6 +24,7 @@ class SchedulesController extends Controller
             students.middle_name,
             students.last_name,
             teachers.id AS teacher_id,
+            teachers.`name` as teacher_name,
             classes.id AS class_id,
             rooms.id AS room_id,
             rooms.name AS room_name
@@ -79,6 +80,7 @@ class SchedulesController extends Controller
             students.middle_name,
             students.last_name,
             teachers.id AS teacher_id,
+            teachers.`name` as teacher_name,
             classes.id AS class_id,
             rooms.id AS room_id,
             rooms.name AS room_name
@@ -103,7 +105,6 @@ class SchedulesController extends Controller
         if (empty($checkSchedule)) {
             foreach ($schedules as $schedule) {
                 $copySchedules = new Schedules();
-                $copySchedules->day = $schedule->day;
                 $copySchedules->start_at = $schedule->start_at;
                 $copySchedules->end_at = $schedule->end_at;
                 $copySchedules->student_id = $schedule->student_id;
@@ -157,54 +158,56 @@ class SchedulesController extends Controller
         if($request->get('classId') > 0)
         {
             $schedules = DB::select('SELECT
-            schedules.id AS schedule_id,
-            TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
-            TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
-            students.id AS student_id,
-            students.first_name,
-            students.middle_name,
-            students.last_name,
-            teachers.id AS teacher_id,
-            classes.id AS class_id,
-            rooms.id AS room_id,
-            rooms.name AS room_name
-            FROM
-            schedules
-            LEFT JOIN rooms ON schedules.room_id = rooms.id
-            LEFT JOIN students ON schedules.student_id = students.id
-            LEFT JOIN teachers ON schedules.teacher_id = teachers.id
-            LEFT JOIN classes ON schedules.class_id = classes.id
-            WHERE
-            schedules.branch_id = "'.$request->get('branch').'"
-            AND
-            schedules.date = "'.$request->get('date').'"
-            AND
-            schedules.class_id = "'.$request->get('classId').'"');
+                schedules.id AS schedule_id,
+                TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
+                TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
+                students.id AS student_id,
+                students.first_name,
+                students.middle_name,
+                students.last_name,
+                teachers.id AS teacher_id,
+                teachers.`name` as teacher_name,
+                classes.id AS class_id,
+                rooms.id AS room_id,
+                rooms.name AS room_name
+                FROM
+                schedules
+                LEFT JOIN rooms ON schedules.room_id = rooms.id
+                LEFT JOIN students ON schedules.student_id = students.id
+                LEFT JOIN teachers ON schedules.teacher_id = teachers.id
+                LEFT JOIN classes ON schedules.class_id = classes.id
+                WHERE
+                schedules.branch_id = "'.$request->get('branch').'"
+                AND
+                schedules.date = "'.$request->get('date').'"
+                AND
+                schedules.class_id = "'.$request->get('classId').'"');
         }
         else
         {
             $schedules = DB::select('SELECT
-            schedules.id AS schedule_id,
-            TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
-            TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
-            students.id AS student_id,
-            students.first_name,
-            students.middle_name,
-            students.last_name,
-            teachers.id AS teacher_id,
-            classes.id AS class_id,
-            rooms.id AS room_id,
-            rooms.name AS room_name
-            FROM
-            schedules
-            LEFT JOIN rooms ON schedules.room_id = rooms.id
-            LEFT JOIN students ON schedules.student_id = students.id
-            LEFT JOIN teachers ON schedules.teacher_id = teachers.id
-            LEFT JOIN classes ON schedules.class_id = classes.id
-            WHERE
-            schedules.branch_id = "' . $request->get('branch') . '"
-            AND
-            schedules.date = "' . $request->get('date') . '"');
+                schedules.id AS schedule_id,
+                TIME_FORMAT(schedules.start_at, "%H:%i") AS start_at,
+                TIME_FORMAT(schedules.end_at, "%H:%i") AS end_at,
+                students.id AS student_id,
+                students.first_name,
+                students.middle_name,
+                students.last_name,
+                teachers.id AS teacher_id,
+                teachers.`name` as teacher_name,
+                classes.id AS class_id,
+                rooms.id AS room_id,
+                rooms.name AS room_name
+                FROM
+                schedules
+                LEFT JOIN rooms ON schedules.room_id = rooms.id
+                LEFT JOIN students ON schedules.student_id = students.id
+                LEFT JOIN teachers ON schedules.teacher_id = teachers.id
+                LEFT JOIN classes ON schedules.class_id = classes.id
+                WHERE
+                schedules.branch_id = "' . $request->get('branch') . '"
+                AND
+                schedules.date = "' . $request->get('date') . '"');
         }
 
         return response()->json($schedules);
@@ -241,7 +244,6 @@ class SchedulesController extends Controller
 
         if (empty($checkSchedule)) {
             $schedule = Schedules::find($id);
-            $schedule->day = $request->get('day') ? $request->get('day') : $schedule->day;
             $schedule->start_at = $request->get('start_at') ? $request->get('start_at') : $schedule->start_at;
             $schedule->end_at = $request->get('end_at') ? $request->get('end_at') : $schedule->end_at;
             $schedule->student_id = $request->get('student_id') ? $request->get('student_id') : $schedule->student_id;
