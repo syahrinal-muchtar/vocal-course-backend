@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Students;
 use App\Teachers;
 use App\Classes;
+use App\Users;
+use App\UsersGroups;
 use Illuminate\Support\Facades\DB;
 
 class StudentsController extends Controller
@@ -449,6 +451,21 @@ class StudentsController extends Controller
      */
     public function store(Request $request)
     {
+        $user = new Users;
+        $user->email = $request->get('email');
+        // $user->username = $request->get('username');
+        // $user->password = Hash::make($request->get('password'));
+        // $user->note = $request->get('note');
+        $user->joined_at = date("Y-m-d");
+        $user->status = 1; //langsung aktif
+        $user->balance = 4;
+        $user->save();
+
+        $userGroup = new UsersGroups;
+        $userGroup->user_id = $user->id;
+        $userGroup->group_id = 5;
+        $userGroup->save();
+
         $student = new Students;
         $student->first_name = $request->get('firstName');
         $student->middle_name = $request->get('middleName') == '' ? '' : $request->get('middleName');
@@ -471,8 +488,9 @@ class StudentsController extends Controller
         $student->result_hours = $request->get('hours');
         $student->date = date("Y-m-d H:i:s");
         $student->branch_id = $request->get('branchId');
-        $student->status = 1;
+        $student->status = 1; //Status Bayar
         $student->signature_img_url = $request->get('firstName').$request->get('class').'.png';
+        $student->user_id = $user->id;
         $student->save();
 
         if ($request->get('teacher'))
@@ -524,11 +542,14 @@ class StudentsController extends Controller
             students.signature_img_url,
             students.date,
             classes.name AS class_name,
-            teachers.name AS teacher_name
+            teachers.name AS teacher_name,
+            users.`id` AS user_id,
+            users.balance
             FROM
             students
             LEFT JOIN classes ON students.class_id = classes.id
             LEFT JOIN teachers ON students.teacher_id = teachers.id
+            LEFT JOIN users ON students.user_id = users.id
             WHERE
             students.id = "'.$id.'"');
         
