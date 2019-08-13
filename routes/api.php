@@ -32,6 +32,8 @@ $router->get('user/{id}', 'UsersController@show');
 $router->post('user', 'UsersController@store');
 $router->patch('user/{id}', 'UsersController@update');
 $router->patch('user_resign/{id}', 'UsersController@resign');
+$router->patch('user_balance/{id}', 'UsersController@editBalance');
+$router->patch('user_decbalance/{id}', 'UsersController@decBalance');
 $router->delete('user/{id}', 'UsersController@destroy');
 $router->post('user/login', 'UsersController@login');
 $router->post('user/logout', 'UsersController@logout');
