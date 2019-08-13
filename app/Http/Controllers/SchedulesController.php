@@ -239,22 +239,81 @@ class SchedulesController extends Controller
             schedules
             WHERE
             schedules.date = "'.$request->get('date').'" AND
-            schedules.student_id = "'.$request->get('student').'"
+            schedules.student_id = "'.$request->get('student_id').'"
+            ');
+        
+        $checkStudentActive = DB::select('SELECT
+            students.id
+            FROM
+            students
+            INNER JOIN users ON students.user_id = users.id
+            WHERE
+            students.id = "'.$request->get('student_id').'" AND
+            users.`status` != 1
             ');
 
-        if (empty($checkSchedule)) {
-            $schedule = Schedules::find($id);
-            $schedule->start_at = $request->get('start_at') ? $request->get('start_at') : $schedule->start_at;
-            $schedule->end_at = $request->get('end_at') ? $request->get('end_at') : $schedule->end_at;
-            $schedule->student_id = $request->get('student_id') ? $request->get('student_id') : $schedule->student_id;
-            $schedule->teacher_id = $request->get('teacher_id') ? $request->get('teacher_id') : $schedule->teacher_id;
-            $schedule->class_id = $request->get('class_id') ? $request->get('class_id') : $schedule->class_id;
-            $schedule->room_id = $request->get('room_id') ? $request->get('room_id') : $schedule->room_id;
-            // $schedule->branch_id = $request->get('branch');
-            $schedule->save();  
+        $checkTeacherActive = DB::select('SELECT
+            teachers.id
+            FROM
+            teachers
+            INNER JOIN users ON teachers.user_id = users.id
+            WHERE
+            teachers.id = "'.$request->get('teacher_id').'" AND
+            users.`status` != 1
+            ');
 
-            return "Data berhasil masuk";
-        }
+            if(empty($checkSchedule))
+            {
+                if(empty($checkStudentActive))
+                {
+                    if(empty($checkTeacherActive))
+                    {
+                        $schedule = Schedules::find($id);
+                        $schedule->start_at = $request->get('start_at') ? $request->get('start_at') : $schedule->start_at;
+                        $schedule->end_at = $request->get('end_at') ? $request->get('end_at') : $schedule->end_at;
+                        $schedule->student_id = $request->get('student_id') ? $request->get('student_id') : $schedule->student_id;
+                        $schedule->teacher_id = $request->get('teacher_id') ? $request->get('teacher_id') : $schedule->teacher_id;
+                        $schedule->class_id = $request->get('class_id') ? $request->get('class_id') : $schedule->class_id;
+                        $schedule->room_id = $request->get('room_id') ? $request->get('room_id') : $schedule->room_id;
+                        // $schedule->branch_id = $request->get('branch');
+                        $schedule->save();  
+
+                        return "Data berhasil masuk";
+                    }
+                    else
+                    {
+                        return response()->json([
+                            'message' => 'This teacher is not active'
+                        ], 404);
+                    }
+                }
+                else
+                {
+                    return response()->json([
+                        'message' => 'This student is not active'
+                    ], 404);
+                }
+            }
+            else
+            {
+                return response()->json([
+                    'message' => 'This student already had schedule today'
+                ], 404);
+            }
+
+        // if (empty($checkSchedule) && empty($checkStudentActive) && empty($checkTeacherActive)) {
+        //     $schedule = Schedules::find($id);
+        //     $schedule->start_at = $request->get('start_at') ? $request->get('start_at') : $schedule->start_at;
+        //     $schedule->end_at = $request->get('end_at') ? $request->get('end_at') : $schedule->end_at;
+        //     $schedule->student_id = $request->get('student_id') ? $request->get('student_id') : $schedule->student_id;
+        //     $schedule->teacher_id = $request->get('teacher_id') ? $request->get('teacher_id') : $schedule->teacher_id;
+        //     $schedule->class_id = $request->get('class_id') ? $request->get('class_id') : $schedule->class_id;
+        //     $schedule->room_id = $request->get('room_id') ? $request->get('room_id') : $schedule->room_id;
+        //     // $schedule->branch_id = $request->get('branch');
+        //     $schedule->save();  
+
+        //     return "Data berhasil masuk";
+        // }
 
         return response()->json([
             'message' => 'Duplicate'
