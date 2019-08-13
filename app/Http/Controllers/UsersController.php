@@ -133,6 +133,33 @@ class UsersController extends Controller
         return "Data berhasil di Update";
     }
 
+    public function editBalance(Request $request, $id)
+    {
+        $user = Users::find($id);  
+        $user->balance = $request->get('balance');
+
+        $user->save();
+
+        return "Data berhasil di Update";
+    }
+
+    public function decBalance($id)
+    {
+        $student = collect(\DB::select('SELECT
+            students.user_id
+            FROM
+            students
+            WHERE
+            students.id = "'.$id.'"'))->first();
+
+        $user = Users::find($student->user_id);  
+        $user->balance = $user->balance -= 1;
+
+        $user->save();
+
+        return "Data berhasil di Update";
+    }
+
     public function resign($id)
     {
         $user = Users::find($id);
