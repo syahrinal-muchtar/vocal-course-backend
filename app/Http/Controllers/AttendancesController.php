@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Schedules;
+use App\Users;
 use App\Attendances;
 use App\Classes;
 use Illuminate\Support\Facades\DB;
@@ -390,6 +390,32 @@ class AttendancesController extends Controller
             $attendances = Attendances::find($id);
             $attendances->student_status = $request->get('student_status');
             $attendances->save();
+
+            $countAttend = collect(\DB::select('SELECT
+            Count(attendances.student_status) AS total_attend,
+            users.id AS user_id
+            FROM
+            attendances
+            INNER JOIN students ON attendances.student_id = students.id
+            INNER JOIN users ON students.user_id = users.id
+            WHERE
+            attendances.student_id = "'.$request->get('studentId').'" AND
+            attendances.date > students.date + INTERVAL 30 DAY AND
+            attendances.student_status = 3
+            GROUP BY
+            users.id'))->first();
+
+            error_log($countAttend->total_attend);
+            if($countAttend->total_attend >= 5) 
+            {
+                $user = Users::find($countAttend->user_id);
+                $user->status = 2;
+
+                $user->save();
+
+                return "User Status Changed to Graduated";
+            }
+            
         }
         elseif (!empty($request->get('teacher_id')))
         {
