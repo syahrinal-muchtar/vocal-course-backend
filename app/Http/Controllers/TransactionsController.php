@@ -21,18 +21,20 @@ class TransactionsController extends Controller
             students.first_name,
             students.middle_name,
             students.last_name,
-            teachers.name as teacher_name,
+            teachers.`name` AS teacher_name,
             transactions.payment_date,
             transactions.receipt_number,
             transactions.cost,
-            transactions.status
+            transactions.`status`,
+            transactions_type.`name` AS transaction_type
             FROM
             transactions
             INNER JOIN students ON transactions.student_id = students.id
             INNER JOIN teachers ON transactions.teacher_id = teachers.id
+            INNER JOIN transactions_type ON transactions.transaction_type_id = transactions_type.id
             ORDER BY
             transactions.id DESC
-            ');
+        ');
         
         return response()->json($transactions);
             // WHERE
