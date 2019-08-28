@@ -352,8 +352,9 @@ class SchedulesController extends Controller
         $room_id = $request->get('room_id') ? $request->get('room_id') : $schedule->room_id;
         $date = $request->get('date') ? $request->get('date') : $schedule->date;
 
-        error_log($student_id.' '.$teacher_id.' '.$room_id.' '.$date);
+        error_log($student_id.' '.$teacher_id.' '.$room_id.' '.$date.' '.$start_at);
 
+        //2 atau lebih dari 1 teacher tidak boleh seruangan
         $checkTeacherInRoom = DB::select('SELECT
             schedules.id
             FROM
@@ -419,55 +420,80 @@ class SchedulesController extends Controller
             teachers.id = "'.$teacher_id.'" AND
             users.`status` != 1
             ');
+        //1 ruangan tidak boleh ada lebih 2 class di waktu bersamaan
+        $checkClassSchedule = DB::select('SELECT
+            schedules.id
+            FROM
+            schedules
+            WHERE
+            schedules.class_id != "'.$class_id.'" AND
+            schedules.room_id =  "'.$room_id.'" AND
+            schedules.date = "'.$date.'" AND
+            schedules.start_at = "'.$start_at.'" 
+            OR
+            schedules.class_id != "'.$class_id.'" AND
+            schedules.room_id =  "'.$room_id.'" AND
+            schedules.date = "'.$date.'" AND
+            schedules.end_at = "'.$end_at.'"
+            ');
 
-            error_log($teacher_id);
+            error_log(sizeof($checkClassSchedule));
 
             if((!isset($teacher_id)) || (sizeof($checkTeacherInRoom) < ($request->get('teacher_id') ? 2: 1)))
             {
-                if(sizeof($checkTeacherSchedule) < ($request->get('teacher_id') ? 1: 2))
+                if((!isset($class_id)) || (sizeof($checkClassSchedule) < ($request->get('class_id') ? 2: 1)))
                 {
-                    if(sizeof($checkStudentSchedule) < ($request->get('student_id') ? 1: 2))
+                    if(sizeof($checkTeacherSchedule) < 1)
                     {
-                        if(empty($checkStudentActive))
+                        if(sizeof($checkStudentSchedule) < ($request->get('student_id') ? 1: 2))
                         {
-                            if(empty($checkTeacherActive))
+                            if(empty($checkStudentActive))
                             {
-                                $schedule->start_at = $start_at;
-                                $schedule->end_at = $end_at;
-                                $schedule->student_id = $student_id;
-                                $schedule->teacher_id = $teacher_id;
-                                $schedule->class_id = $class_id;
-                                $schedule->room_id = $room_id;
-                                // $schedule->branch_id = $request->get('branch');
-                                $schedule->save();  
+                                if(empty($checkTeacherActive))
+                                {
+                                    $schedule->start_at = $start_at;
+                                    $schedule->end_at = $end_at;
+                                    $schedule->student_id = $student_id;
+                                    $schedule->teacher_id = $teacher_id;
+                                    $schedule->class_id = $class_id;
+                                    $schedule->room_id = $room_id;
+                                    // $schedule->branch_id = $request->get('branch');
+                                    $schedule->save();  
 
-                                return "Data berhasil masuk";
+                                    return "Data berhasil masuk";
+                                }
+                                else
+                                {
+                                    return response()->json([
+                                        'message' => 'This teacher is not active'
+                                    ], 404);
+                                }
                             }
                             else
                             {
                                 return response()->json([
-                                    'message' => 'This teacher is not active'
+                                    'message' => 'This student is not active'
                                 ], 404);
                             }
                         }
                         else
                         {
                             return response()->json([
-                                'message' => 'This student is not active'
+                                'message' => 'This student already had schedule this time'
                             ], 404);
                         }
                     }
                     else
                     {
                         return response()->json([
-                            'message' => 'This student already had schedule this time'
+                            'message' => 'This teacher had assigned to another room'
                         ], 404);
                     }
                 }
                 else
                 {
                     return response()->json([
-                        'message' => 'This teacher had assigned to another room'
+                        'message' => 'Another class already in this room'
                     ], 404);
                 }
             }
