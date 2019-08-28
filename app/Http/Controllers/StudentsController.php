@@ -97,12 +97,14 @@ class StudentsController extends Controller
                 students.teacher_id,
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
-                branches.`name` AS branch_name
+                branches.`name` AS branch_name,
+users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
+INNER JOIN users ON students.user_id = users.id
                 WHERE
                 YEAR(students.date)= YEAR(Current_date)
                 AND
@@ -138,12 +140,14 @@ class StudentsController extends Controller
                     students.teacher_id,
                     teachers.`name` as teacher_name,
                     branches.id AS branch_id,
-                    branches.`name` AS branch_name
+                    branches.`name` AS branch_name,
+users.`status` AS user_status
                     FROM
                     students
                     LEFT JOIN classes ON students.class_id = classes.id
                     LEFT JOIN teachers ON students.teacher_id = teachers.id
                     INNER JOIN branches ON students.branch_id = branches.id
+INNER JOIN users ON students.user_id = users.id
                     WHERE
                     classes.`name` = "'.$class->name.'"
                     AND
@@ -170,11 +174,13 @@ class StudentsController extends Controller
                     students.email,
                     classes.`name` as class_name,
                     branches.id AS branch_id,
-                    branches.`name` AS branch_name
+                    branches.`name` AS branch_name,
+users.`status` AS user_status
                     FROM
                     students
                     INNER JOIN branches ON students.branch_id = branches.id
                     LEFT JOIN classes ON students.class_id = classes.id
+INNER JOIN users ON students.user_id = users.id
                     WHERE
                     classes.`name` IS NULL
                     AND
@@ -203,12 +209,14 @@ class StudentsController extends Controller
                 students.teacher_id,
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
-                branches.`name` AS branch_name
+                branches.`name` AS branch_name,
+users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
+INNER JOIN users ON students.user_id = users.id
                 WHERE
                 YEAR(students.date)= YEAR(Current_date)
                 AND
@@ -240,12 +248,14 @@ class StudentsController extends Controller
                 students.teacher_id,
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
-                branches.`name` AS branch_name
+                branches.`name` AS branch_name,
+users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
+INNER JOIN users ON students.user_id = users.id
                 WHERE
                 branches.id = "'.$request->branchId.'"
                 AND
@@ -271,12 +281,14 @@ class StudentsController extends Controller
                 students.teacher_id,
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
-                branches.`name` AS branch_name
+                branches.`name` AS branch_name,
+users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
+INNER JOIN users ON students.user_id = users.id
                 WHERE
                 students.status = "'.$request->status.'"
                 ORDER BY
@@ -307,12 +319,14 @@ class StudentsController extends Controller
                 students.teacher_id,
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
-                branches.`name` AS branch_name
+                branches.`name` AS branch_name,
+users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
+INNER JOIN users ON students.user_id = users.id
                 WHERE
                 classes.id = "'.$request->classId.'"
                 AND
@@ -338,12 +352,14 @@ class StudentsController extends Controller
                 students.teacher_id,
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
-                branches.`name` AS branch_name
+                branches.`name` AS branch_name,
+users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
+INNER JOIN users ON students.user_id = users.id
                 WHERE
                 students.status = "'.$request->status.'"
                 ORDER BY
@@ -417,12 +433,14 @@ class StudentsController extends Controller
                 students.teacher_id,
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
-                branches.`name` AS branch_name
+                branches.`name` AS branch_name,
+users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
+INNER JOIN users ON students.user_id = users.id
                 WHERE
                 YEAR(students.date)= "'.$request->date.'"
                 AND
