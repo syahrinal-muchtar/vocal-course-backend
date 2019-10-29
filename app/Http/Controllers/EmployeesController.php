@@ -27,10 +27,11 @@ class EmployeesController extends Controller
             employees.gender,
             employees.birthdate,
             employees.user_id,
-            users.`status`
+            users.`status`,
+            users.joined_at
             FROM
             employees
-            INNER JOIN users ON employees.user_id = users.id
+            LEFT JOIN users ON employees.user_id = users.id
             ORDER BY
             employees.id DESC');
 

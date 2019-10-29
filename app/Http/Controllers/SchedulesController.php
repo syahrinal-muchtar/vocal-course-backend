@@ -37,7 +37,12 @@ class SchedulesController extends Controller
             WHERE
             schedules.branch_id = "'.$request->get('branch').'"
             AND
-            schedules.date = CURRENT_DATE');
+            schedules.date = CURRENT_DATE
+            GROUP BY
+            schedules.start_at,
+            schedules.class_id,
+            schedules.id,
+            schedules.teacher_id');
 
         return response()->json($schedules);
     }
@@ -207,7 +212,12 @@ class SchedulesController extends Controller
                 WHERE
                 schedules.branch_id = "' . $request->get('branch') . '"
                 AND
-                schedules.date = "' . $request->get('date') . '"');
+                schedules.date = "' . $request->get('date') . '"
+                GROUP BY
+                schedules.start_at,
+                schedules.class_id,
+                schedules.id,
+                schedules.teacher_id');
         }
 
         return response()->json($schedules);

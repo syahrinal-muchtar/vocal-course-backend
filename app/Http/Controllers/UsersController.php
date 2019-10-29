@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Users;
 use App\UsersGroups;
 use App\UsersBranches;
+use App\Teachers;
+use App\Employees;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -55,12 +57,33 @@ class UsersController extends Controller
         $user->password = Hash::make($request->get('password'));
         $user->note = $request->get('note');
         $user->joined_at = date("Y-m-d");
+        $user->status = 1; //langsung aktif
         $user->save();
 
         $userGroup = new UsersGroups;
         $userGroup->user_id = $user->id;
         $userGroup->group_id = $request->get('group');
         $userGroup->save();
+
+        if($request->get('group') == 1) //Teacher
+        {
+            $teacher = new Teachers;
+            $teacher->name = $request->get('name');
+            $teacher->salary = $request->get('salary');
+            $teacher->user_id = $user->id;
+            $teacher->save();
+        }
+        else if($request->get('group') == 2) //Employee
+        {
+            $employee = new Employees;
+            $employee->name = $request->get('name');
+            $employee->no_hp = $request->get('noHp');
+            $employee->address = $request->get('address');
+            $employee->gender = $request->get('gender');
+            $employee->birthdate = $request->get('birthdate');
+            $employee->user_id = $user->id;
+            $employee->save();
+        }
 
         foreach ($request->get('branch') as $branch) {
             $userBranch = new UsersBranches;
@@ -84,6 +107,20 @@ class UsersController extends Controller
         return response()->json($user);
     }
 
+    public function getBranchs($id)
+    {
+        $branches = DB::select('SELECT
+        branches.`name`,
+        branches.id
+        FROM
+        users_branches
+        INNER JOIN branches ON users_branches.branch_id = branches.id
+        WHERE
+        users_branches.user_id = "'.$id.'"');
+
+        return response()->json($branches);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -97,6 +134,7 @@ class UsersController extends Controller
             users.id,
             users.username,
             users.email,
+            users.joined_at,
             groups.id,
             groups.`name`
             FROM
@@ -215,21 +253,23 @@ class UsersController extends Controller
 
         // return $this->respondWithToken($token);
 
-        $branch = collect(\DB::select('SELECT
-            branches.`name`
-            FROM
-            users
-            INNER JOIN branches ON users.branch_id = branches.id
-            WHERE
-            users.username = "'.$request->username.'"'))->first();
-
         $user = Users::where('username', $request->username)->first();
+
+        $branch = collect(\DB::select('SELECT
+        branches.id,
+        branches.`name`
+        FROM
+        users_branches
+        INNER JOIN branches ON users_branches.branch_id = branches.id
+        WHERE
+        users_branches.user_id = "'.$user->id.'"'))->first();
+
         if ($user && \Hash::check($request->password, $user->password)) // The passwords match...
         {
             $token = self::getToken($request->username, $request->password);
             $user->auth_token = $token;
             $user->save();
-            $response = ['success'=>true, 'data'=>['id'=>$user->id,'auth_token'=>$user->auth_token,'username'=>$user->username, 'email'=>$user->email, 'branch_id'=>$user->branch_id, 'branch_name'=>$branch->name, 'role_id'=>$user->role_id]];           
+            $response = ['success'=>true, 'data'=>['id'=>$user->id,'auth_token'=>$user->auth_token,'username'=>$user->username, 'email'=>$user->email, 'branch_id'=>$branch->id, 'branch_name'=>$branch->name, 'role_id'=>$user->role_id]];           
         }
         else 
           $response = ['success'=>false, 'data'=>'Record doesnt exists'];

@@ -26,10 +26,11 @@ class TeachersController extends Controller
             teachers.students_count,
             teachers.salary,
             teachers.user_id,
-            users.`status`
+            users.`status`,
+            users.joined_at
             FROM
             teachers
-            INNER JOIN users ON teachers.user_id = users.id');
+            LEFT JOIN users ON teachers.user_id = users.id');
 
             return response()->json([
             'message' => 'success',

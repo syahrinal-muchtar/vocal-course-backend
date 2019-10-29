@@ -29,6 +29,7 @@ $router->get('branches', 'BranchesController@index');
 // Users Route
 // $router->get('users', 'UsersController@index');
 $router->get('user/{id}', 'UsersController@show');
+$router->get('user_branchs/{id}', 'UsersController@getBranchs');
 $router->post('user', 'UsersController@store');
 $router->patch('user/{id}', 'UsersController@update');
 $router->patch('user_resign/{id}', 'UsersController@resign');

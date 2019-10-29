@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Users;
 use App\Attendances;
 use App\Classes;
+use App\Schedules;
 use Illuminate\Support\Facades\DB;
+use SebastianBergmann\Environment\Console;
 
 class AttendancesController extends Controller
 {
@@ -131,14 +133,13 @@ class AttendancesController extends Controller
         //     }
         // }
 
-        $checkNow = DB::select('SELECT
-            attendances.date
-            FROM
-            attendances
-            WHERE
-            attendances.date = CURRENT_DATE()');
+        $checkNow = collect(\DB::select('SELECT
+            (SELECT COUNT(*) FROM attendances WHERE attendances.date = CURRENT_DATE()) as attendancesCount, 
+            (SELECT COUNT(*) FROM schedules WHERE schedules.date = CURRENT_DATE()) as schedulesCount'))->first();
 
-        if (empty($checkNow))
+        $differenceCount = $checkNow->schedulesCount - $checkNow->attendancesCount;
+
+        if ($differenceCount != 0)
         {
             $schedules = DB::select('SELECT
                 id,
@@ -152,7 +153,9 @@ class AttendancesController extends Controller
                 FROM
                 schedules
                 WHERE
-                schedules.date = CURRENT_DATE()');
+                schedules.date = CURRENT_DATE()
+                ORDER BY id DESC
+                LIMIT '.$differenceCount);
 
             foreach ($schedules as $schedule) {
                 $attendances = new Attendances;
@@ -200,6 +203,11 @@ class AttendancesController extends Controller
                 INNER JOIN rooms ON attendances.room_id = rooms.id
                 WHERE
                 attendances.date = CURRENT_DATE
+                GROUP BY
+                attendances.start_at,
+                attendances.class_id,
+                attendances.id,
+                attendances.teacher_id
                 ');
 
             return response()->json($attendances);
@@ -233,6 +241,11 @@ class AttendancesController extends Controller
             INNER JOIN rooms ON attendances.room_id = rooms.id
             WHERE
             attendances.date = CURRENT_DATE
+            GROUP BY
+            attendances.start_at,
+            attendances.class_id,
+            attendances.id,
+            attendances.teacher_id
             ');
 
         return response()->json($attendances);
@@ -273,6 +286,7 @@ class AttendancesController extends Controller
                 AND
                 attendances.class_id = "' . $request->get('classId') . '"
                 ');
+                error_log('coba 1');
         } else {
             $attendances = DB::select('SELECT
                 attendances.id AS attendances_id,
@@ -303,6 +317,7 @@ class AttendancesController extends Controller
                 WHERE
                 attendances.date BETWEEN "' . $request->get('date') . ' 00:00:00" AND "' . $request->get('date') . ' 23:59:59"
                 ');
+                error_log('coba 2');
         }
 
 

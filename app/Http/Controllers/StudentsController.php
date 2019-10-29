@@ -98,19 +98,19 @@ class StudentsController extends Controller
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
                 branches.`name` AS branch_name,
-users.`status` AS user_status
+                users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
-INNER JOIN users ON students.user_id = users.id
+                INNER JOIN users ON students.user_id = users.id
                 WHERE
                 YEAR(students.date)= YEAR(Current_date)
                 AND
-                students.status = "'.$request->status.'"
+                students.status = '.$request->status.'
                 ORDER BY
-                students.id DESC');
+                students.first_name ASC');
         
         return response()->json($students); 
     }
@@ -141,19 +141,19 @@ INNER JOIN users ON students.user_id = users.id
                     teachers.`name` as teacher_name,
                     branches.id AS branch_id,
                     branches.`name` AS branch_name,
-users.`status` AS user_status
+                    users.`status` AS user_status
                     FROM
                     students
                     LEFT JOIN classes ON students.class_id = classes.id
                     LEFT JOIN teachers ON students.teacher_id = teachers.id
                     INNER JOIN branches ON students.branch_id = branches.id
-INNER JOIN users ON students.user_id = users.id
+                    INNER JOIN users ON students.user_id = users.id
                     WHERE
                     classes.`name` = "'.$class->name.'"
                     AND
-                    students.status = "'.$request->status.'"
+                    students.status = '.$request->status.'
                     ORDER BY
-                    students.id DESC');
+                    students.first_name ASC');
 
                 array_push($students, $student != [] ? $student : $class->name);
             }
@@ -175,18 +175,18 @@ INNER JOIN users ON students.user_id = users.id
                     classes.`name` as class_name,
                     branches.id AS branch_id,
                     branches.`name` AS branch_name,
-users.`status` AS user_status
+                    users.`status` AS user_status
                     FROM
                     students
                     INNER JOIN branches ON students.branch_id = branches.id
                     LEFT JOIN classes ON students.class_id = classes.id
-INNER JOIN users ON students.user_id = users.id
+                    INNER JOIN users ON students.user_id = users.id
                     WHERE
                     classes.`name` IS NULL
                     AND
-                    students.status = "'.$request->status.'"
+                    students.status = '.$request->status.'
                     ORDER BY
-                    students.id DESC');
+                    students.first_name ASC');
 
                 array_push($students, $student != [] ? $student : 'None');
             }
@@ -210,19 +210,19 @@ INNER JOIN users ON students.user_id = users.id
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
                 branches.`name` AS branch_name,
-users.`status` AS user_status
+                users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
-INNER JOIN users ON students.user_id = users.id
+                INNER JOIN users ON students.user_id = users.id
                 WHERE
                 YEAR(students.date)= YEAR(Current_date)
                 AND
-                students.status = "'.$request->status.'"
+                students.status = '.$request->status.'
                 ORDER BY
-                students.id DESC');
+                students.first_name ASC');
         }
         
         return response()->json($students); 
@@ -249,19 +249,19 @@ INNER JOIN users ON students.user_id = users.id
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
                 branches.`name` AS branch_name,
-users.`status` AS user_status
+                users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
-INNER JOIN users ON students.user_id = users.id
+                INNER JOIN users ON students.user_id = users.id
                 WHERE
                 branches.id = "'.$request->branchId.'"
                 AND
-                students.status = "'.$request->status.'"
+                students.status = '.$request->status.'
                 ORDER BY
-                students.id DESC');
+                students.first_name ASC');
         }
         else
         {
@@ -282,17 +282,17 @@ INNER JOIN users ON students.user_id = users.id
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
                 branches.`name` AS branch_name,
-users.`status` AS user_status
+                users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
-INNER JOIN users ON students.user_id = users.id
+                INNER JOIN users ON students.user_id = users.id
                 WHERE
-                students.status = "'.$request->status.'"
+                students.status = '.$request->status.'
                 ORDER BY
-                students.id DESC');
+                students.first_name ASC');
         }
          
 
@@ -320,19 +320,19 @@ INNER JOIN users ON students.user_id = users.id
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
                 branches.`name` AS branch_name,
-users.`status` AS user_status
+                users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
-INNER JOIN users ON students.user_id = users.id
+                INNER JOIN users ON students.user_id = users.id
                 WHERE
                 classes.id = "'.$request->classId.'"
                 AND
-                students.status = "'.$request->status.'"
+                students.status = '.$request->status.'
                 ORDER BY
-                students.id DESC');
+                students.first_name ASC');
         }
         else
         {
@@ -353,17 +353,17 @@ INNER JOIN users ON students.user_id = users.id
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
                 branches.`name` AS branch_name,
-users.`status` AS user_status
+                users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
-INNER JOIN users ON students.user_id = users.id
+                INNER JOIN users ON students.user_id = users.id
                 WHERE
-                students.status = "'.$request->status.'"
+                students.status = '.$request->status.'
                 ORDER BY
-                students.id DESC');
+                students.first_name ASC');
         }
         
         return response()->json($students); 
@@ -434,19 +434,19 @@ INNER JOIN users ON students.user_id = users.id
                 teachers.`name` as teacher_name,
                 branches.id AS branch_id,
                 branches.`name` AS branch_name,
-users.`status` AS user_status
+                users.`status` AS user_status
                 FROM
                 students
                 LEFT JOIN classes ON students.class_id = classes.id
                 LEFT JOIN teachers ON students.teacher_id = teachers.id
                 INNER JOIN branches ON students.branch_id = branches.id
-INNER JOIN users ON students.user_id = users.id
+                INNER JOIN users ON students.user_id = users.id
                 WHERE
                 YEAR(students.date)= "'.$request->date.'"
                 AND
-                students.status = "'.$request->status.'"
+                students.status = '.$request->status.'
                 ORDER BY
-                students.id DESC');
+                students.first_name ASC');
         
         return response()->json($students); 
     }
@@ -461,6 +461,13 @@ INNER JOIN users ON students.user_id = users.id
         //
     }
 
+    public function emailExist($email) 
+    {
+        $email = Users::where('email', $email)->first();
+
+        return !empty($email);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -469,6 +476,12 @@ INNER JOIN users ON students.user_id = users.id
      */
     public function store(Request $request)
     {
+        if ($this->emailExist($request->get('email'))) {
+            return response()->json([
+                'message' => 'Email Already Exists'
+            ], 404);
+        }
+
         $user = new Users;
         $user->email = $request->get('email');
         // $user->username = $request->get('username');

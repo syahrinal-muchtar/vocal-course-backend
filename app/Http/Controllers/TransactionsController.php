@@ -29,8 +29,8 @@ class TransactionsController extends Controller
             transactions_type.`name` AS transaction_type
             FROM
             transactions
-            INNER JOIN students ON transactions.student_id = students.id
-            INNER JOIN teachers ON transactions.teacher_id = teachers.id
+            LEFT JOIN students ON transactions.student_id = students.id
+            LEFT JOIN teachers ON transactions.teacher_id = teachers.id
             INNER JOIN transactions_type ON transactions.transaction_type_id = transactions_type.id
             ORDER BY
             transactions.id DESC
@@ -55,8 +55,8 @@ class TransactionsController extends Controller
             transactions.cost
             FROM
             transactions
-            INNER JOIN students ON transactions.student_id = students.id
-            INNER JOIN teachers ON transactions.teacher_id = teachers.id
+            LEFT JOIN students ON transactions.student_id = students.id
+            LEFT JOIN teachers ON transactions.teacher_id = teachers.id
             WHERE
             MONTH(transactions.date) = MONTH("'.$request->get('date').'")
             AND
@@ -91,7 +91,7 @@ class TransactionsController extends Controller
         $transaction->date = date("Y-m-d H:i:s");
         $transaction->payment_date = $request->get('payment_date');
         $transaction->receipt_number = $this->generateReceiptNumber();
-        $transaction->cost = $request->get('cost');
+        $transaction->cost = $request->get('total');
         $transaction->pricing_id = $request->get('pricing');
         $transaction->transaction_type_id = $request->get('transaction_type');
         $transaction->royalty = $request->get('royalty');
